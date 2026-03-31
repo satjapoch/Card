@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toyholic Card System — UI Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f14;
+    --bg2: #141720;
+    --bg3: #1c2030;
+    --surface: #1e2235;
+    --surface2: #252a40;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f2ff;
+    --text2: #8b92b8;
+    --text3: #5a607a;
+
+    --fire: #ff6b35;
+    --fire2: #ff9a5c;
+    --wood: #4ade80;
+    --wood2: #86efac;
+    --gold: #f5c842;
+    --gold2: #fde68a;
+    --water: #38bdf8;
+    --water2: #7dd3fc;
+    --dark: #a78bfa;
+    --dark2: #c4b5fd;
+
+    --accent: #7c6fff;
+    --accent2: #a99fff;
+
+    --r: 14px;
+    --r2: 20px;
+    --r3: 28px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── LAYOUT ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px 100px;
+  }
+
+  /* ── HEADER ── */
+  .top-bar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .top-bar .logo {
+    font-family: 'Noto Serif Thai', serif;
+    font-size: 18px; font-weight: 700;
+    background: linear-gradient(135deg, var(--gold), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 0.02em;
+  }
+  .top-bar .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--fire));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: #fff;
+    cursor: pointer;
+  }
+  .page-title {
+    font-size: 11px; color: var(--text2); letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(20,23,32,0.96);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 10px 0 16px;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; color: var(--text3); transition: color 0.2s;
+    padding: 4px 16px;
+    font-size: 10px; letter-spacing: 0.05em;
+    border: none; background: none;
+  }
+  .nav-item.active { color: var(--accent2); }
+  .nav-item svg { width: 22px; height: 22px; }
+
+  /* ── SECTION LABELS ── */
+  .section-hd {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 24px 0 12px;
+  }
+  .section-hd h2 {
+    font-size: 16px; font-weight: 600; color: var(--text);
+  }
+  .section-hd a {
+    font-size: 12px; color: var(--accent2); cursor: pointer; text-decoration: none;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .toy-card {
+    border-radius: var(--r2);
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    aspect-ratio: 2/3;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex; flex-direction: column;
+  }
+  .toy-card:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
+
+  .card-element-strip {
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  }
+  .card-element-strip.fire { background: linear-gradient(90deg, var(--fire), var(--fire2)); }
+  .card-element-strip.wood { background: linear-gradient(90deg, var(--wood), var(--wood2)); }
+  .card-element-strip.gold { background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+  .card-element-strip.water { background: linear-gradient(90deg, var(--water), var(--water2)); }
+  .card-element-strip.dark { background: linear-gradient(90deg, var(--dark), var(--dark2)); }
+
+  .card-art {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 42px;
+    background: radial-gradient(circle at 60% 40%, rgba(255,255,255,0.04), transparent);
+  }
+
+  .card-footer {
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.3);
+  }
+  .card-name { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .card-meta { font-size: 10px; color: var(--text2); display: flex; align-items: center; justify-content: space-between; }
+
+  .rarity-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    display: inline-block; margin-right: 4px;
+  }
+  .rarity-dot.C { background: var(--text3); }
+  .rarity-dot.R { background: var(--water); }
+  .rarity-dot.SR { background: var(--gold); }
+  .rarity-dot.UR { background: var(--fire); box-shadow: 0 0 6px var(--fire); }
+
+  .card-tag {
+    font-size: 9px; padding: 2px 6px; border-radius: 20px;
+    font-weight: 600; letter-spacing: 0.04em;
+  }
+  .card-tag.fire { background: rgba(255,107,53,0.15); color: var(--fire2); }
+  .card-tag.wood { background: rgba(74,222,128,0.15); color: var(--wood2); }
+  .card-tag.gold { background: rgba(245,200,66,0.15); color: var(--gold2); }
+  .card-tag.water { background: rgba(56,189,248,0.15); color: var(--water2); }
+  .card-tag.dark { background: rgba(167,139,250,0.15); color: var(--dark2); }
+
+  .card-locked .card-art { filter: grayscale(1) brightness(0.3); }
+  .card-locked::after {
+    content: '🔒';
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-size: 24px; opacity: 0.6;
+  }
+
+  /* ── HERO STAT ROW ── */
+  .stat-row {
+    display: flex; gap: 10px; margin: 20px 0 0;
+  }
+  .stat-box {
+    flex: 1; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 14px 12px; text-align: center;
+  }
+  .stat-num { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .stat-lbl { font-size: 11px; color: var(--text2); }
+
+  /* ── PROMO CARD ── */
+  .promo-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 18px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .promo-card:hover { border-color: var(--border2); }
+  .promo-card.eligible { border-color: rgba(74,222,128,0.4); background: rgba(74,222,128,0.05); }
+  .promo-card.partial { border-color: rgba(245,200,66,0.3); background: rgba(245,200,66,0.04); }
+
+  .promo-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .promo-name { font-size: 15px; font-weight: 600; }
+  .status-badge {
+    font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+  .status-badge.ok { background: rgba(74,222,128,0.15); color: var(--wood2); }
+  .status-badge.wait { background: rgba(245,200,66,0.15); color: var(--gold2); }
+  .status-badge.no { background: rgba(255,107,53,0.12); color: var(--fire2); }
+
+  .promo-req { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .req-chip {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 30px; padding: 5px 10px;
+    font-size: 12px;
+  }
+  .req-chip.have { border-color: rgba(74,222,128,0.4); }
+  .req-chip.missing { border-color: rgba(255,107,53,0.3); opacity: 0.6; }
+  .req-chip .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .promo-prize { display: flex; align-items: center; gap: 10px; }
+  .prize-img { font-size: 28px; }
+  .prize-info .prize-name { font-size: 13px; font-weight: 600; }
+  .prize-info .prize-sub { font-size: 11px; color: var(--text2); }
+
+  .btn-primary {
+    width: 100%; padding: 13px; border-radius: var(--r);
+    background: linear-gradient(135deg, var(--accent), #5b50d4);
+    border: none; color: #fff;
+    font-size: 14px; font-weight: 600; font-family: 'Sarabun', sans-serif;
+    cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+    margin-top: 12px;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .btn-outline {
+    width: 100%; padding: 12px; border-radius: var(--r);
+    background: transparent;
+    border: 1px solid var(--border2); color: var(--text2);
+    font-size: 14px; font-weight: 500; font-family: 'Sarabun', sans-serif;
+    cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    margin-top: 8px;
+  }
+  .btn-outline:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── WAITING LIST ── */
+  .wl-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r);
+    margin-bottom: 8px;
+    transition: background 0.15s;
+  }
+  .wl-rank { font-size: 18px; font-weight: 700; color: var(--text3); min-width: 28px; text-align: center; }
+  .wl-rank.me { color: var(--accent2); }
+  .wl-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; color: #fff; flex-shrink: 0;
+  }
+  .wl-info { flex: 1; }
+  .wl-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .wl-sub { font-size: 11px; color: var(--text2); }
+  .wl-time { font-size: 11px; color: var(--text3); }
+
+  .wl-item.me-row { border-color: rgba(124,111,255,0.4); background: rgba(124,111,255,0.06); }
+
+  /* ── QR SCAN PAGE ── */
+  .qr-frame {
+    margin: 30px auto;
+    width: 220px; height: 220px;
+    border: 2px solid var(--accent);
+    border-radius: var(--r2);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    background: rgba(124,111,255,0.04);
+  }
+  .qr-frame::before, .qr-frame::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: var(--accent2);
+    border-style: solid;
+  }
+  .qr-frame::before { top: -3px; left: -3px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+  .qr-frame::after { bottom: -3px; right: -3px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+  .qr-pulse {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(124,111,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(124,111,255,0.3); }
+    50% { box-shadow: 0 0 0 16px rgba(124,111,255,0); }
+  }
+
+  /* ── CARD DETAIL MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: var(--bg2);
+    border-top: 1px solid var(--border2);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%; max-width: 520px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 36px; height: 4px; border-radius: 2px;
+    background: var(--border2); margin: 0 auto 20px;
+  }
+  .modal-card-big {
+    width: 120px; height: 180px; border-radius: 16px;
+    margin: 0 auto 20px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .modal-card-art { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 52px; }
+
+  .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { font-size: 12px; color: var(--text2); }
+  .detail-value { font-size: 12px; font-weight: 600; color: var(--text); }
+
+  /* ── NOTIFICATION ── */
+  .notif-item {
+    display: flex; gap: 12px; padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .notif-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: var(--surface); display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .notif-text { flex: 1; }
+  .notif-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .notif-sub { font-size: 12px; color: var(--text2); }
+  .notif-time { font-size: 10px; color: var(--text3); margin-top: 4px; }
+  .notif-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
+
+  /* ── ALERT BANNER ── */
+  .alert-banner {
+    background: rgba(74,222,128,0.08);
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: var(--r);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    margin: 16px 0;
+    font-size: 13px; color: var(--wood2);
+  }
+
+  /* ── FILTER TABS ── */
+  .filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 16px 0; }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+  .filter-tab {
+    flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    border: 1px solid var(--border); background: transparent; color: var(--text2);
+    transition: all 0.15s; font-family: 'Sarabun', sans-serif;
+  }
+  .filter-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar { background: var(--surface2); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 10px; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+
+  /* ── ELEMENT LEGEND ── */
+  .elem-legend { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0 16px; }
+  .elem-chip {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--text2);
+  }
+  .elem-swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* ── TRANSFER FLOW ── */
+  .transfer-input {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: var(--r); padding: 12px 14px;
+    color: var(--text); font-size: 14px; font-family: 'Sarabun', sans-serif;
+    width: 100%; margin-bottom: 10px;
+  }
+  .transfer-input:focus { outline: none; border-color: var(--accent); }
+  .transfer-input::placeholder { color: var(--text3); }
+
+  /* SCREEN LABEL */
+  .screen-label {
+    display: inline-block;
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 3px 10px;
+    font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase;
+    margin: 24px 0 0;
+  }
+
+  /* Mini card row */
+  .mini-card-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .mini-card-row::-webkit-scrollbar { display: none; }
+  .mini-card {
+    flex-shrink: 0; width: 68px; height: 96px; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+    cursor: pointer; transition: transform 0.15s;
+  }
+  .mini-card:hover { transform: scale(1.05); }
+  .mini-card .art { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .mini-card .lbl { font-size: 8px; color: var(--text2); padding: 4px 4px; text-align: center; background: rgba(0,0,0,0.3); }
+
+  .divider-line { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* Scan result card */
+  .scan-result {
+    background: var(--surface); border: 1px solid rgba(74,222,128,0.3);
+    border-radius: var(--r2); padding: 20px; text-align: center;
+    margin: 16px 0;
+  }
+  .scan-result .result-emoji { font-size: 52px; margin-bottom: 12px; }
+  .scan-result .result-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .scan-result .result-sub { font-size: 13px; color: var(--text2); }
+
+  .tip-box {
+    background: rgba(124,111,255,0.06); border: 1px solid rgba(124,111,255,0.15);
+    border-radius: var(--r); padding: 12px 14px; margin: 12px 0;
+    font-size: 12px; color: var(--text2); line-height: 1.6;
+  }
+  .tip-box strong { color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo">🎴 Toyholic</div>
+  <span class="page-title" id="page-title-label">สมุดสะสม</span>
+  <div class="avatar" onclick="showPage('notif')">PN</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 1: MY COLLECTION -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page active" id="page-collection">
+<div class="wrapper">
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="stat-num" style="color:var(--accent2)">12</div>
+      <div class="stat-lbl">การ์ดของฉัน</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" style="color:var(--gold)">3</div>
+      <div class="stat-lbl">SR / UR</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" style="color:var(--wood)">2</div>
+      <div class="stat-lbl">สิทธิ์ที่ได้</div>
+    </div>
+  </div>
+
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="filterCards(this,'all')">ทั้งหมด</button>
+    <button class="filter-tab" onclick="filterCards(this,'fire')">🔥 ธาตุไฟ</button>
+    <button class="filter-tab" onclick="filterCards(this,'wood')">🌿 ธาตุไม้</button>
+    <button class="filter-tab" onclick="filterCards(this,'gold')">✨ ธาตุทอง</button>
+    <button class="filter-tab" onclick="filterCards(this,'water')">💧 ธาตุน้ำ</button>
+    <button class="filter-tab" onclick="filterCards(this,'dark')">🌑 ธาตุมืด</button>
+  </div>
+
+  <div class="section-hd">
+    <h2>การ์ดของฉัน</h2>
+    <a onclick="showPage('scan')">+ สแกนการ์ดใหม่</a>
+  </div>
+
+  <div class="card-grid" id="card-grid">
+    <!-- Cards injected by JS -->
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 2: PROMOTIONS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page" id="page-promos">
+<div class="wrapper">
+
+  <div class="screen-label">โปรโมชั่น</div>
+  <div class="section-hd" style="margin-top:12px">
+    <h2>แลกสิทธิ์รับของ</h2>
+  </div>
+
+  <div class="tip-box">
+    💡 <strong>วิธีใช้:</strong> สะสมการ์ดให้ครบตามเงื่อนไข แล้วกด "ยื่นสิทธิ์" เพื่อเข้า Waiting List รับสินค้า
+  </div>
+
+  <!-- Promo 1 - eligible -->
+  <div class="promo-card eligible" onclick="openPromoDetail('hammer')">
+    <div class="promo-top">
+      <div class="promo-name">🔨 ค้อน Hammer Edition</div>
+      <span class="status-badge ok">✓ ครบแล้ว!</span>
+    </div>
+    <div class="promo-req">
+      <div class="req-chip have">
+        <span class="dot" style="background:var(--fire)"></span>
+        ธาตุไฟ ×1
+      </div>
+      <div class="req-chip have">
+        <span class="dot" style="background:var(--wood)"></span>
+        ธาตุไม้ ×1
+      </div>
+      <div class="req-chip have">
+        <span class="dot" style="background:var(--gold)"></span>
+        ธาตุทอง ×1
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%;background:linear-gradient(90deg,var(--wood),var(--accent))"></div></div>
+    <div style="font-size:11px;color:var(--text2);margin-top:6px">สะสมครบ 3/3 การ์ด</div>
+    <div class="promo-prize" style="margin-top:12px">
+      <div class="prize-img">🔨</div>
+      <div class="prize-info">
+        <div class="prize-name">Hammer Pro Limited Edition</div>
+        <div class="prize-sub">เหลือสิทธิ์: 15 ชิ้น · Waiting: 8 คน</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="event.stopPropagation();showPage('waiting')">🎯 ยื่นสิทธิ์ / เข้า Waiting List</button>
+  </div>
+
+  <!-- Promo 2 - partial -->
+  <div class="promo-card partial" onclick="openPromoDetail('scissors')">
+    <div class="promo-top">
+      <div class="promo-name">✂️ กรรไกร Ultra Collector</div>
+      <span class="status-badge wait">2/3 การ์ด</span>
+    </div>
+    <div class="promo-req">
+      <div class="req-chip have">
+        <span class="dot" style="background:var(--fire)"></span>
+        ธาตุไฟ ×1
+      </div>
+      <div class="req-chip have">
+        <span class="dot" style="background:var(--dark)"></span>
+        ธาตุมืด ×1
+      </div>
+      <div class="req-chip missing">
+        <span class="dot" style="background:var(--water)"></span>
+        ธาตุน้ำ ×1 <span style="color:var(--fire);margin-left:2px">✗</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:67%;background:linear-gradient(90deg,var(--gold),var(--fire))"></div></div>
+    <div style="font-size:11px;color:var(--text2);margin-top:6px">ยังขาด: ธาตุน้ำ 1 ใบ</div>
+    <button class="btn-outline" disabled style="cursor:not-allowed;margin-top:12px;opacity:0.35">ต้องมีการ์ดครบก่อน</button>
+  </div>
+
+  <!-- Promo 3 - not eligible -->
+  <div class="promo-card" onclick="openPromoDetail('paper')">
+    <div class="promo-top">
+      <div class="promo-name">📄 กระดาษ Secret Box</div>
+      <span class="status-badge no">0/3 การ์ด</span>
+    </div>
+    <div class="promo-req">
+      <div class="req-chip missing">
+        <span class="dot" style="background:var(--water)"></span>
+        ธาตุน้ำ ×2 <span style="color:var(--fire);margin-left:2px">✗</span>
+      </div>
+      <div class="req-chip missing">
+        <span class="dot" style="background:var(--gold)"></span>
+        ธาตุทอง ×1 <span style="color:var(--fire);margin-left:2px">✗</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--fire)"></div></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px">ยังขาด: ธาตุน้ำ ×2, ธาตุทอง ×1</div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 3: WAITING LIST -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page" id="page-waiting">
+<div class="wrapper">
+
+  <div class="screen-label">Waiting List</div>
+  <div class="section-hd" style="margin-top:12px">
+    <h2>🔨 ค้อน Hammer Edition</h2>
+  </div>
+
+  <div class="alert-banner">
+    🎉 คุณอยู่ในคิวแล้ว! ทางร้านจะแจ้งผลผ่าน Line Official
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+    <div style="font-size:12px;color:var(--text2)">คิวของคุณ</div>
+    <div style="font-size:12px;color:var(--accent2)">อัปเดต: 5 นาทีที่แล้ว</div>
+  </div>
+  <div style="background:var(--surface);border:2px solid rgba(124,111,255,0.4);border-radius:var(--r2);padding:16px 20px;text-align:center;margin-bottom:20px">
+    <div style="font-size:11px;color:var(--text2);margin-bottom:4px">ลำดับของคุณ</div>
+    <div style="font-size:48px;font-weight:700;color:var(--accent2);line-height:1">#4</div>
+    <div style="font-size:12px;color:var(--text2);margin-top:6px">จาก 8 คนในคิว · เหลือสินค้า 15 ชิ้น</div>
+  </div>
+
+  <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">รายชื่อ Waiting List</div>
+
+  <div class="wl-item">
+    <div class="wl-rank">1</div>
+    <div class="wl-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">SP</div>
+    <div class="wl-info">
+      <div class="wl-name">สมศักดิ์ ปิ่นทอง</div>
+      <div class="wl-sub">🔥 ×1 · 🌿 ×1 · ✨ ×1</div>
+    </div>
+    <div class="wl-time">2 ชม.</div>
+  </div>
+  <div class="wl-item">
+    <div class="wl-rank">2</div>
+    <div class="wl-avatar" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">มน</div>
+    <div class="wl-info">
+      <div class="wl-name">มนัสชัย ****</div>
+      <div class="wl-sub">🔥 ×1 · 🌿 ×1 · ✨ ×1</div>
+    </div>
+    <div class="wl-time">3 ชม.</div>
+  </div>
+  <div class="wl-item">
+    <div class="wl-rank">3</div>
+    <div class="wl-avatar" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">อร</div>
+    <div class="wl-info">
+      <div class="wl-name">อรพรรณ ****</div>
+      <div class="wl-sub">🔥 ×1 · 🌿 ×1 · ✨ ×1</div>
+    </div>
+    <div class="wl-time">4 ชม.</div>
+  </div>
+  <div class="wl-item me-row">
+    <div class="wl-rank me">4</div>
+    <div class="wl-avatar" style="background:linear-gradient(135deg,var(--accent),var(--fire))">PN</div>
+    <div class="wl-info">
+      <div class="wl-name">พนม นาคะ <span style="font-size:10px;background:rgba(124,111,255,0.2);color:var(--accent2);padding:2px 7px;border-radius:20px;margin-left:4px">คุณ</span></div>
+      <div class="wl-sub">🔥 ×1 · 🌿 ×1 · ✨ ×1</div>
+    </div>
+    <div class="wl-time">4 ชม.</div>
+  </div>
+  <div class="wl-item">
+    <div class="wl-rank" style="color:var(--text3)">5</div>
+    <div class="wl-avatar" style="background:linear-gradient(135deg,#10b981,#14b8a6)">วิ</div>
+    <div class="wl-info">
+      <div class="wl-name">วิทยา ****</div>
+      <div class="wl-sub">🔥 ×1 · 🌿 ×1 · ✨ ×1</div>
+    </div>
+    <div class="wl-time">5 ชม.</div>
+  </div>
+
+  <div style="text-align:center;padding:16px 0;font-size:12px;color:var(--text3)">+ อีก 3 คน</div>
+
+  <div class="tip-box">
+    📱 <strong>ทางร้านจะแจ้งผลผ่าน Line Official</strong> เมื่อถึงคิวของคุณ กรุณาเชื่อมต่อ Line ไว้
+  </div>
+
+  <button class="btn-outline" style="color:var(--fire2);border-color:rgba(255,107,53,0.3)" onclick="showPage('promos')">❌ ยกเลิกการจอง</button>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 4: QR SCAN -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page" id="page-scan">
+<div class="wrapper">
+
+  <div class="screen-label">สแกน QR Code</div>
+  <div class="section-hd" style="margin-top:12px">
+    <h2>เพิ่มการ์ดในสมุดสะสม</h2>
+  </div>
+
+  <div id="scan-idle">
+    <div class="qr-frame">
+      <div class="qr-pulse">📷</div>
+    </div>
+
+    <p style="text-align:center;font-size:13px;color:var(--text2);margin-bottom:24px">
+      นำกล้องไปส่องที่ QR Code บนการ์ด Toyholic ของคุณ
+    </p>
+
+    <button class="btn-primary" onclick="simulateScan()">
+      📷 จำลองการสแกน (Demo)
+    </button>
+    <button class="btn-outline" onclick="showPage('collection')">ยกเลิก</button>
+  </div>
+
+  <div id="scan-result" style="display:none">
+    <div class="scan-result">
+      <div class="result-emoji">🌿</div>
+      <div class="result-name">Sylvan Spirit</div>
+      <div class="result-sub" style="margin-bottom:8px">ธาตุไม้ · Rarity: R</div>
+      <span class="card-tag wood">🌿 ธาตุไม้</span>
+    </div>
+
+    <div class="section-hd"><h2>รายละเอียดการ์ด</h2></div>
+    <div class="detail-row"><span class="detail-label">Card ID</span><span class="detail-value" style="font-family:monospace;font-size:11px;color:var(--accent2)">TYH-2024-00847</span></div>
+    <div class="detail-row"><span class="detail-label">Element</span><span class="detail-value" style="color:var(--wood)">🌿 ธาตุไม้</span></div>
+    <div class="detail-row"><span class="detail-label">Rarity</span><span class="detail-value" style="color:var(--water)">R — Rare</span></div>
+    <div class="detail-row"><span class="detail-label">สถานะ</span><span class="detail-value" style="color:var(--wood)">✓ พร้อมเพิ่มในสมุด</span></div>
+
+    <button class="btn-primary" onclick="claimCard()">✅ เพิ่มในสมุดสะสม</button>
+    <button class="btn-outline" onclick="resetScan()">สแกนใหม่</button>
+  </div>
+
+  <div id="scan-claimed" style="display:none">
+    <div class="scan-result" style="border-color:rgba(245,200,66,0.4);background:rgba(245,200,66,0.05)">
+      <div class="result-emoji">✅</div>
+      <div class="result-name">เพิ่มสำเร็จ!</div>
+      <div class="result-sub">Sylvan Spirit เข้าสมุดสะสมของคุณแล้ว</div>
+    </div>
+
+    <div class="alert-banner" style="border-color:rgba(245,200,66,0.3);background:rgba(245,200,66,0.05);color:var(--gold2)">
+      🏆 ตอนนี้คุณมีการ์ดธาตุไม้แล้ว! ลองเช็คโปรโมชั่น
+    </div>
+
+    <button class="btn-primary" onclick="showPage('promos')">🎁 ดูโปรโมชั่น</button>
+    <button class="btn-outline" onclick="resetScan()">สแกนการ์ดอื่น</button>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <div class="section-hd"><h2>โอนการ์ด (Transfer)</h2></div>
+  <p style="font-size:12px;color:var(--text2);margin-bottom:12px">ส่งการ์ดให้เพื่อนโดยใช้ Line ID หรือ User ID ของ Toyholic</p>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:8px">เลือกการ์ดที่ต้องการโอน</div>
+  <div class="mini-card-row">
+    <div class="mini-card" style="border-color:rgba(255,107,53,0.4)">
+      <div class="card-element-strip fire"></div>
+      <div class="art">🔥</div>
+      <div class="lbl">Ignis</div>
+    </div>
+    <div class="mini-card" style="border-color:rgba(74,222,128,0.4)">
+      <div class="card-element-strip wood"></div>
+      <div class="art">🌿</div>
+      <div class="lbl">Sylvan</div>
+    </div>
+    <div class="mini-card">
+      <div class="card-element-strip water"></div>
+      <div class="art">💧</div>
+      <div class="lbl">Aqua</div>
+    </div>
+    <div class="mini-card">
+      <div class="card-element-strip gold"></div>
+      <div class="art">✨</div>
+      <div class="lbl">Aurum</div>
+    </div>
+  </div>
+
+  <input class="transfer-input" placeholder="ใส่ Line ID หรือ Toyholic User ID ของผู้รับ" style="margin-top:14px">
+  <button class="btn-outline">📤 โอนการ์ด</button>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- PAGE 5: NOTIFICATIONS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="page" id="page-notif">
+<div class="wrapper">
+
+  <div class="screen-label">การแจ้งเตือน</div>
+  <div class="section-hd" style="margin-top:12px">
+    <h2>การแจ้งเตือน</h2>
+  </div>
+
+  <div class="notif-item">
+    <div class="notif-icon">🎉</div>
+    <div class="notif-text">
+      <div class="notif-title">ได้รับสิทธิ์แล้ว!</div>
+      <div class="notif-sub">คุณได้รับสิทธิ์รับสินค้า "ค้อน Hammer Edition" กรุณามารับภายใน 7 วัน</div>
+      <div class="notif-time">15 นาทีที่แล้ว</div>
+    </div>
+    <div class="notif-dot"></div>
+  </div>
+
+  <div class="notif-item">
+    <div class="notif-icon">📦</div>
+    <div class="notif-text">
+      <div class="notif-title">มีโปรโมชั่นใหม่!</div>
+      <div class="notif-sub">ทางร้านเปิดตัว "กระดาษ Secret Box" สะสมการ์ดธาตุน้ำ ×2 + ทอง ×1</div>
+      <div class="notif-time">2 ชั่วโมงที่แล้ว</div>
+    </div>
+    <div class="notif-dot"></div>
+  </div>
+
+  <div class="notif-item">
+    <div class="notif-icon">🔄</div>
+    <div class="notif-text">
+      <div class="notif-title">ได้รับการโอนการ์ด</div>
+      <div class="notif-sub">มนัสชัย ส่งการ์ด "Aqua Tide (ธาตุน้ำ · R)" ให้คุณ</div>
+      <div class="notif-time">เมื่อวาน 18:42</div>
+    </div>
+  </div>
+
+  <div class="notif-item">
+    <div class="notif-icon">✅</div>
+    <div class="notif-text">
+      <div class="notif-title">สแกนการ์ดสำเร็จ</div>
+      <div class="notif-sub">เพิ่ม "Ignis Flame (ธาตุไฟ · SR)" เข้าสมุดสะสมแล้ว</div>
+      <div class="notif-time">3 วันที่แล้ว</div>
+    </div>
+  </div>
+
+  <div class="notif-item">
+    <div class="notif-icon">⏳</div>
+    <div class="notif-text">
+      <div class="notif-title">คิวเลื่อน!</div>
+      <div class="notif-sub">คิวของคุณสำหรับ "ค้อน Hammer Edition" เลื่อนเป็นลำดับที่ 4 แล้ว</div>
+      <div class="notif-time">5 วันที่แล้ว</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- CARD DETAIL MODAL -->
+<div class="modal-overlay" id="card-modal" onclick="closeModal()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-card-big" id="modal-card-inner">
+      <div class="card-element-strip fire"></div>
+      <div class="modal-card-art" id="modal-art">🔥</div>
+      <div class="card-footer">
+        <div class="card-name" id="modal-name">Ignis Flame</div>
+      </div>
+    </div>
+
+    <div class="detail-row"><span class="detail-label">Card ID</span><span class="detail-value" id="modal-id" style="font-family:monospace;font-size:11px;color:var(--accent2)">TYH-2024-00103</span></div>
+    <div class="detail-row"><span class="detail-label">Element</span><span class="detail-value" id="modal-elem" style="color:var(--fire)">🔥 ธาตุไฟ</span></div>
+    <div class="detail-row"><span class="detail-label">Rarity</span><span class="detail-value" id="modal-rarity">SR — Super Rare</span></div>
+    <div class="detail-row"><span class="detail-label">เจ้าของ</span><span class="detail-value">คุณ (พนม นาคะ)</span></div>
+    <div class="detail-row"><span class="detail-label">ได้รับเมื่อ</span><span class="detail-value">12 มี.ค. 2568</span></div>
+
+    <button class="btn-outline" onclick="closeModal();showPage('scan')" style="margin-top:12px">📤 โอนการ์ดนี้</button>
+    <button class="btn-outline" onclick="closeModal()" style="margin-top:8px">ปิด</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-collection" onclick="showPage('collection')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+    </svg>
+    สมุดสะสม
+  </button>
+  <button class="nav-item" id="nav-promos" onclick="showPage('promos')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+    </svg>
+    โปรโมชั่น
+  </button>
+  <button class="nav-item" id="nav-scan" onclick="showPage('scan')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><rect x="8" y="8" width="8" height="8" rx="1"/>
+    </svg>
+    สแกน
+  </button>
+  <button class="nav-item" id="nav-waiting" onclick="showPage('waiting')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+    </svg>
+    คิว
+  </button>
+  <button class="nav-item" id="nav-notif" onclick="showPage('notif')" style="position:relative">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+    </svg>
+    แจ้งเตือน
+    <span style="position:absolute;top:2px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--fire);border:2px solid var(--bg)"></span>
+  </button>
+</nav>
+
+<script>
+const CARDS = [
+  { id:'TYH-2024-00103', name:'Ignis Flame', art:'🔥', el:'fire', rarity:'SR', owned:true },
+  { id:'TYH-2024-00214', name:'Sylvan Spirit', art:'🌿', el:'wood', rarity:'R', owned:true },
+  { id:'TYH-2024-00388', name:'Aurum Crown', art:'✨', el:'gold', rarity:'UR', owned:true },
+  { id:'TYH-2024-00441', name:'Aqua Tide', art:'💧', el:'water', rarity:'C', owned:true },
+  { id:'TYH-2024-00552', name:'Shadow Veil', art:'🌑', el:'dark', rarity:'R', owned:true },
+  { id:'TYH-2024-00619', name:'Ember Spark', art:'🔥', el:'fire', rarity:'C', owned:true },
+  { id:'TYH-2024-00700', name:'Verdant Bloom', art:'🌿', el:'wood', rarity:'C', owned:true },
+  { id:'TYH-2024-00811', name:'Gilded Storm', art:'✨', el:'gold', rarity:'SR', owned:true },
+  { id:'TYH-2024-00999', name:'Frost Wraith', art:'💧', el:'water', rarity:'R', owned:true },
+  { id:'TYH-2024-01042', name:'???', art:'?', el:'fire', rarity:'UR', owned:false },
+  { id:'TYH-2024-01109', name:'???', art:'?', el:'wood', rarity:'SR', owned:false },
+  { id:'TYH-2024-01200', name:'???', art:'?', el:'dark', rarity:'UR', owned:false },
+];
+
+const rarityColors = { C:'var(--text3)', R:'var(--water)', SR:'var(--gold)', UR:'var(--fire)' };
+
+function renderCards(filter='all') {
+  const grid = document.getElementById('card-grid');
+  grid.innerHTML = '';
+  CARDS.forEach(c => {
+    if (filter !== 'all' && c.el !== filter) return;
+    const div = document.createElement('div');
+    div.className = 'toy-card' + (c.owned ? '' : ' card-locked');
+    div.innerHTML = `
+      <div class="card-element-strip ${c.el}"></div>
+      <div class="card-art">${c.owned ? c.art : '?'}</div>
+      <div class="card-footer">
+        <div class="card-name">${c.name}</div>
+        <div class="card-meta">
+          <span><span class="rarity-dot ${c.rarity}"></span>${c.rarity}</span>
+          <span class="card-tag ${c.el}">${elLabel(c.el)}</span>
+        </div>
+      </div>`;
+    if (c.owned) div.onclick = () => openCardModal(c);
+    grid.appendChild(div);
+  });
+}
+
+function elLabel(el) {
+  return { fire:'🔥 ไฟ', wood:'🌿 ไม้', gold:'✨ ทอง', water:'💧 น้ำ', dark:'🌑 มืด' }[el] || el;
+}
+
+function filterCards(btn, el) {
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards(el);
+}
+
+function openCardModal(card) {
+  document.getElementById('modal-art').textContent = card.art;
+  document.getElementById('modal-name').textContent = card.name;
+  document.getElementById('modal-id').textContent = card.id;
+  document.getElementById('modal-elem').textContent = elLabel(card.el) + ' ธาตุ';
+  document.getElementById('modal-rarity').textContent = card.rarity === 'UR' ? 'UR — Ultra Rare' : card.rarity === 'SR' ? 'SR — Super Rare' : card.rarity === 'R' ? 'R — Rare' : 'C — Common';
+  const strip = document.querySelector('#card-modal .card-element-strip');
+  strip.className = 'card-element-strip ' + card.el;
+  document.getElementById('card-modal').classList.add('open');
+}
+function closeModal() { document.getElementById('card-modal').classList.remove('open'); }
+
+const pageMap = {
+  collection: 'page-collection',
+  promos: 'page-promos',
+  waiting: 'page-waiting',
+  scan: 'page-scan',
+  notif: 'page-notif',
+};
+const titleMap = {
+  collection: 'สมุดสะสม',
+  promos: 'โปรโมชั่น',
+  waiting: 'Waiting List',
+  scan: 'สแกน QR Code',
+  notif: 'แจ้งเตือน',
+};
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageMap[name]).classList.add('active');
+  document.getElementById('page-title-label').textContent = titleMap[name];
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const nav = document.getElementById('nav-' + name);
+  if (nav) nav.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function simulateScan() {
+  document.getElementById('scan-idle').style.display = 'none';
+  document.getElementById('scan-result').style.display = 'block';
+  document.getElementById('scan-claimed').style.display = 'none';
+}
+function claimCard() {
+  document.getElementById('scan-result').style.display = 'none';
+  document.getElementById('scan-claimed').style.display = 'block';
+}
+function resetScan() {
+  document.getElementById('scan-idle').style.display = 'block';
+  document.getElementById('scan-result').style.display = 'none';
+  document.getElementById('scan-claimed').style.display = 'none';
+}
+
+renderCards();
+</script>
+</body>
+</html>
